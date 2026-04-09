@@ -4,26 +4,25 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Pharmacy Automation Demo | Secure Simulation</title>
+    <title>Intelligent Pharmacy Automation | Secure Demo</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
-    <!-- SheetJS for Excel Support -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
   </head>
   <body>
-    <div class="demo-banner">DEMO - SYNTHETIC DATA ONLY - NO PRODUCTION EXPOSURE</div>
+    <div class="demo-banner">CLEAN DEMO ENVIRONMENT - SYNTHETIC DATA ONLY</div>
     
     <div id="app">
       <header class="header">
         <div class="header-main">
-          <h1>Pharmacy Automation Demo</h1>
-          <p>Secure simulation of fetch-to-form automation workflows [hhs] [synthea]</p>
+          <h1>Intelligent Workflow Designer</h1>
+          <p>End-to-end automation with AI-driven classification and field mapping [hhs] [synthea]</p>
         </div>
         <div class="presentation-toggle-container">
           <div class="toggle-group">
             <label class="toggle-switch">
-              <input type="checkbox" id="presentation-toggle">
+              <input type="checkbox" id="presentation-toggle" checked>
               <span class="slider round"></span>
             </label>
             <span class="toggle-label">Presentation Mode</span>
@@ -33,94 +32,134 @@
               <input type="checkbox" id="step-by-step-toggle">
               <span class="slider round"></span>
             </label>
-            <span class="toggle-label">Step-by-Step</span>
+            <span class="toggle-label">Stepped Logic</span>
           </div>
         </div>
       </header>
 
       <main class="dashboard-grid">
-        <!-- Control Panel -->
-        <aside class="card control-panel">
-          <h3>Scenario Selector</h3>
-          <div class="scenario-list" id="scenario-list">
-            <button class="scenario-btn active" data-scenario="happy_path"> Happy Path </button>
-            <button class="scenario-btn" data-scenario="pa_required"> Prior-Auth Required </button>
-            <button class="scenario-btn" data-scenario="refill_too_soon"> Refill-Too-Soon </button>
-            <button class="scenario-btn" data-scenario="invalid_member"> Invalid-Member </button>
-            <button class="scenario-btn" data-scenario="timeout"> Timeout -> Retry </button>
-            <button class="scenario-btn" data-scenario="large_qty"> Large-Quantity </button>
-            <button class="scenario-btn" data-scenario="concurrency"> Concurrency (10 Parallel) </button>
+        <!-- Input Panel -->
+        <aside class="card input-panel">
+          <div class="input-header">
+            <h3>Enterprise Input Source</h3>
+            <span class="badge-blue">HYBRID_INPUT</span>
           </div>
 
-          <div style="margin-top: 32px;">
-            <button id="run-automation" class="btn-primary">Execute Automation</button>
-            <button id="advance-step" class="btn-secondary" style="display: none; margin-top: 12px;">Next Step →</button>
+          <div class="universal-input-container">
+            <label for="universal-input">Paste Request (JSON, CSV, or Text)</label>
+            <textarea id="universal-input" placeholder='{"rx_id": "10291", "pt_name": "Maverick"}'></textarea>
+          </div>
+
+          <div class="scenario-section">
+            <h4>Standard Demo Scenarios</h4>
+            <div class="scenario-list" id="scenario-list">
+              <button class="scenario-btn active" data-scenario="refill_success" data-type="refill"> Successful Refill </button>
+              <button class="scenario-btn" data-scenario="claim_issue" data-type="claim"> Claim Rejection Handling </button>
+              <button class="scenario-btn" data-scenario="eligibility_verify" data-type="eligibility"> Eligibility Verification </button>
+              <button class="scenario-btn" data-scenario="inventory_check" data-type="inventory"> Inventory Stock Lookup </button>
+              <button class="scenario-btn" data-scenario="ocr_case" data-type="document_support"> Image OCR Processing <span class="badge-ocr">OCR</span></button>
+              <button class="scenario-btn" data-scenario="word_doc" data-type="document_support"> Unstructured Word Doc </button>
+              <button class="scenario-btn" data-scenario="patient_update" data-type="patient_update"> Patient Profile Update </button>
+              <button class="scenario-btn" data-scenario="pa_required" data-type="refill"> Prior-Auth Required </button>
+            </div>
+          </div>
+
+          <div class="action-footer">
+            <button id="run-automation" class="btn-primary" disabled>Process Intelligent Workflow</button>
+            <button id="advance-step" class="btn-secondary" style="display: none; margin-top: 12px;">Execute Next Sub-Process →</button>
           </div>
         </aside>
 
-        <!-- Workflow Execution -->
+        <!-- Workflow Execution Viewport -->
         <section class="card viewport">
           <div class="viewport-header">
-            <h3 id="current-scenario-title">Happy Path</h3>
-            <span id="workflow-status" class="status-badge success">READY</span>
+            <div class="viewport-title">
+                <h3 id="current-scenario-title">Successful Refill</h3>
+                <div id="workflow-meta" class="text-muted" style="font-size: 0.75rem;">Detected Support Type: <span id="detected-type">PENDING</span></div>
+            </div>
+            <span id="workflow-status" class="status-badge success">SYSTEM_READY</span>
           </div>
 
           <div class="flow-container" id="flow-container">
-            <!-- Step 1: Fetch -->
-            <div class="flow-step" id="step-fetch">
+            <!-- Step 1: Ingest -->
+            <div class="flow-step" id="step-ingest">
               <div class="step-icon">1</div>
               <div class="step-content">
                 <div class="step-header-with-action">
-                  <h4>Fetch Source Data (XYZ)</h4>
+                  <h4>Source Ingestion</h4>
                   <div class="upload-actions">
-                    <input type="file" id="source-upload" style="display: none;" accept=".xlsx,.csv,.png,.jpg,.jpeg">
-                    <button id="trigger-upload" class="btn-icon-label" title="Upload Image or Excel">
-                      <span class="icon">📁</span> Upload XYZ
+                    <input type="file" id="source-upload" style="display: none;" accept="*">
+                    <button id="trigger-upload" class="link-btn">
+                      <span>📁</span> Attach Document Source
                     </button>
                   </div>
                 </div>
-                <p>Select any file (Image/Excel) to trigger the source-to-report automation.</p>
-                <div id="fetch-preview" class="preview-box" style="display: none;"></div>
-                <div id="fetch-presentation" class="presentation-box" style="display: none;"></div>
-                <div id="source-file-preview" class="source-file-preview" style="display: none;"></div>
+                <!-- File Staging Preview -->
+                <div id="file-staging-card" class="staging-card" style="display: none;">
+                   <div class="staging-info">
+                      <div id="staging-name" class="staging-filename">No file attached</div>
+                      <div id="staging-meta" class="staging-metadata">Ready for transformation</div>
+                   </div>
+                   <div id="staging-badge" class="staging-badge">STAGED</div>
+                </div>
+                <div id="ingest-preview" class="preview-box" style="display: none;"></div>
+                <div id="source-file-preview" class="source-file-preview" style="display: none;">
+                   <div id="scan-overlay" class="scanning-overlay" style="display: none;">
+                      <div class="scanner-bar"></div>
+                      <div class="scanning-text">SIMULATING OCR EXTRACTION...</div>
+                   </div>
+                   <div id="preview-content"></div>
+                </div>
               </div>
             </div>
 
-            <!-- Step 2: Form Fill -->
-            <div class="flow-step" id="step-form">
+            <!-- Step 2: Classify -->
+            <div class="flow-step" id="step-classify">
               <div class="step-icon">2</div>
               <div class="step-content">
-                <h4>Auto-Fill Form</h4>
-                <p>Mapping clinical data to pharmacy intake schemas</p>
-                <div id="form-preview" class="preview-box" style="display: none;"></div>
+                <h4>Intelligent Classification</h4>
+                <p>Mapping intents and normalizing field variations</p>
+                <div id="classify-presentation" class="presentation-box" style="display: none;"></div>
+              </div>
+            </div>
+
+            <!-- Step 3: Auto-Fill -->
+            <div class="flow-step" id="step-form">
+              <div class="step-icon">3</div>
+              <div class="step-content">
+                <h4>Enrich & Auto-Fill</h4>
+                <p>Fetching synthetic evidence and completing form templates</p>
                 <div id="form-presentation" class="presentation-box" style="display: none;"></div>
               </div>
             </div>
 
-            <!-- Step 3: Report -->
+            <!-- Step 4: Report -->
             <div class="flow-step" id="step-report">
-              <div class="step-icon">3</div>
+              <div class="step-icon">4</div>
               <div class="step-content">
                 <div class="step-header-with-action">
-                  <h4>Generate Report</h4>
-                  <button id="download-excel" class="btn-icon-label success" style="display: none;">
-                    <span class="icon">📊</span> Download Excel
-                  </button>
+                  <h4>Audit Generation</h4>
+                  <div class="dual-action-container" id="dual-export-container" style="display: none;">
+                    <button id="download-excel" class="dual-btn btn-excel">
+                        📊 Download Excel
+                    </button>
+                    <button id="download-pdf" class="dual-btn btn-pdf">
+                        📄 Download PDF
+                    </button>
+                  </div>
                 </div>
-                <p>Finalizing automation audit and adjudication results</p>
-                <div id="report-preview" class="preview-box" style="display: none;"></div>
                 <div id="report-presentation" class="presentation-box" style="display: none;"></div>
               </div>
             </div>
           </div>
 
-          <!-- Developer Logs -->
+          <!-- Technical Logs -->
           <div class="logs-container">
-            <h4>Sanitized Audit Logs</h4>
-            <div class="logs-window" id="logs-window">
-              <div class="log-entry"><span>[13:09:07]</span> System initialized in DEMO_MODE.</div>
-              <div class="log-entry"><span>[13:09:07]</span> Virtualization service active [wiremock].</div>
+            <div class="logs-header">
+                <h4>Sanitized Workflow Audit</h4>
+                <button id="clear-logs" class="text-btn">Clear Logs</button>
             </div>
+            <div class="logs-window" id="logs-window"></div>
           </div>
         </section>
       </main>
@@ -130,20 +169,20 @@
     <div id="welcome-modal" class="modal-overlay">
       <div class="modal-content">
         <div class="modal-header">
-          <h2>Secure Client Simulation</h2>
-          <div class="privacy-seal">PROTECTED WORKFLOW</div>
+          <h2>Intelligent Automation Designer</h2>
+          <div class="privacy-seal">PROTECTED PRESENTATION ENVIROMENT</div>
         </div>
         <div class="modal-body">
-          <p>This environment is a <strong>Secure Simulation</strong> for client presentations. It features:</p>
-          <ul>
-            <li><strong>Verified Synthetic Data:</strong> Safe for public display.</li>
-            <li><strong>Mock Service Virtualization:</strong> Zero production dependencies.</li>
-            <li><strong>Real-time Automation:</strong> End-to-end clinical workflow execution.</li>
+          <p>Welcome to the <strong>Multi-intent Pharmacy Demo</strong>. This system demonstrates how intelligent workflows handle varied operational requests:</p>
+          <ul class="modal-list">
+            <li><strong>Intelligent Classification:</strong> Detects refill, inventory, or claim intents automatically.</li>
+            <li><strong>Hybrid Ingestion:</strong> Processes JSON, CSV, and unstructured notes.</li>
+            <li><strong>Zero-Touch Processing:</strong> Auto-fills clinical forms using synthetic enrichment.</li>
           </ul>
-          <p class="disclaimer text-muted">No PHI, PII, or internal production data is accessed or stored in this environment.</p>
+          <p class="disclaimer">All data is generated at runtime via the <strong>Synthea SDV-4</strong> protocol. No production endpoints or PHI are utilized.</p>
         </div>
         <div class="modal-footer">
-          <button id="close-modal" class="btn-primary">Acknowledge & Continue</button>
+          <button id="close-modal" class="btn-primary">Initialize Demo</button>
         </div>
       </div>
     </div>

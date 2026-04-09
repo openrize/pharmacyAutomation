@@ -11,25 +11,24 @@ const MEDICATION_SAMPLES = [
   { ndc: '68382-0137-01', rxnorm: '312450', name: 'Metformin 500 MG Oral Tablet', form: 'tablet' },
 ];
 
-const PAYERS = ['Commercial', 'Medicare', 'Medicaid', 'Cash'];
-const REJECTION_REASONS = ['prior_auth_required', 'refill_too_soon', 'quantity_limit', 'invalid_member_id'];
+const PAYERS = ['Blue Shield Pharmacy Care', 'Medi-Health Solutions', 'Global Wellness Rx', 'Standard PPO'];
 
 export function generateSyntheticData() {
   const patients = [];
   const prescribers = [];
   
-  // Generate 800 Prescribers
-  for (let i = 0; i < 800; i++) {
+  // Generate 100 Prescribers
+  for (let i = 0; i < 100; i++) {
     prescribers.push({
       prescriber_id: faker.string.uuid(),
       display_name: `Dr. ${faker.person.lastName()}`,
-      npi: `10${faker.string.numeric(8)}`, // Obviously synthetic NPI
+      npi: `10${faker.string.numeric(8)}`,
       specialty: faker.helpers.arrayElement(['family', 'internal', 'endocrinology', 'psychiatry'])
     });
   }
 
-  // Generate 2500 Patients
-  for (let i = 0; i < 2500; i++) {
+  // Generate 500 Patients
+  for (let i = 0; i < 500; i++) {
     const ageRange = faker.helpers.weightedArrayElement([
       { value: [0, 17], weight: 0.18 },
       { value: [18, 64], weight: 0.62 },
@@ -54,7 +53,30 @@ export function generateSyntheticData() {
     });
   }
 
-  return { patients, prescribers, medications: MEDICATION_SAMPLES };
+  // Generate Inventory Status
+  const inventory = MEDICATION_SAMPLES.map(m => ({
+    ndc: m.ndc,
+    name: m.name,
+    on_hand: faker.number.int({ min: 0, max: 250 }),
+    warehouse_id: `WH-${faker.string.numeric(3)}`,
+    last_restock: faker.date.recent({ days: 15 }).toISOString().split('T')[0]
+  }));
+
+  return { patients, prescribers, medications: MEDICATION_SAMPLES, inventory, payers: PAYERS };
+}
+
+export function generateEligibility(patient) {
+  return {
+    patient_id: patient.patient_id,
+    member_id: `MBR-${faker.string.alphanumeric(8).toUpperCase()}`,
+    payer: faker.helpers.arrayElement(PAYERS),
+    status: faker.helpers.weightedArrayElement([
+      { value: 'ACTIVE', weight: 0.85 },
+      { value: 'LENTED/EXPIRED', weight: 0.10 },
+      { value: 'NOT_FOUND', weight: 0.05 }
+    ]),
+    verification_id: `VER-${Date.now()}`
+  };
 }
 
 export function generatePrescription(patient, prescriber, medication) {
@@ -66,14 +88,15 @@ export function generatePrescription(patient, prescriber, medication) {
   ]);
 
   return {
-    rx_id: faker.string.uuid(),
+    rx_id: `RX-${faker.string.numeric(6)}`,
     patient_id: patient.patient_id,
     prescriber_id: prescriber.prescriber_id,
     medication_id: medication.ndc,
     rx_name: medication.name,
     days_supply: daysSupply,
-    quantity: daysSupply * 1, // simplified daily dose
+    quantity: daysSupply * 1,
     written_date: faker.date.recent({ days: 120 }).toISOString().split('T')[0],
     refills_authorized: faker.number.int({ min: 0, max: 2 })
   };
 }
+
