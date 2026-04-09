@@ -286,11 +286,17 @@ initMSW().then(() => {
       window.triggerExcelExport();
   });
 
-  document.getElementById('download-pdf').addEventListener('click', () => {
+  document.getElementById('download-pdf').addEventListener('click', async () => {
       if (!lastWorkflowResult) return;
-      addLog('Drafting professional PDF audit certificate...', 'info');
-      generatePDFReport(lastWorkflowResult, currentSessionLogs);
-      addLog('PDF certificate generated and downloaded.', 'success');
+      try {
+          addLog('Drafting professional PDF audit certificate...', 'info');
+          generatePDFReport(lastWorkflowResult, currentSessionLogs);
+          addLog('PDF certificate generated and downloaded.', 'success');
+      } catch (err) {
+          console.error('PDF Download Error Triggered:', err);
+          addLog(`Critical: PDF Generation Failed. Check browser console.`, 'error');
+          alert('Download Failed: Please ensure your browser is not blocking popups or PDF downloads.');
+      }
   });
 
   // Toggles & Modal (Existing)
